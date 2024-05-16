@@ -23,13 +23,16 @@
       <div class="collapse navbar-collapse" id="mynavbar">
         <ul class="navbar-nav me-auto">
           <li class="nav-item">
-            <a class="nav-link" href="<?php echo site_url('voirliaison') ?>">Liaison</a>
+            <a class="nav-link" href="<?php echo site_url('voirlestarifs') ?>">Afficher les liaisons par secteur</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="<?php echo site_url('voirsecteurs') ?>">Secteurs</a>
+            <a class="nav-link" href="<?php echo site_url('voirliaison') ?>">Afficher les tarifs pour une liaison</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="<?php echo site_url('voiruneliaison') ?>">Liaison pour un tarif</a>
+            <a class="nav-link" href="<?php echo site_url('voirunetraversee') ?>"> Les horaires de traversées </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="<?php echo site_url('voirreservation') ?>"> Réservations </a>
           </li>
         </ul>
         <form class="d-flex">
@@ -38,7 +41,8 @@
           if (!is_null($session->get('mel'))) : ?>
             <?php echo 'Bonjour ' . $session->get('prenom') . ' ' . $session->get('nom') . '&nbsp;&nbsp;'; ?>
             <a href="<?php echo site_url('deconnexion') ?>" class="btn btn-primary">Se déconnecter</a>&nbsp;&nbsp;
-            <a href="<?php echo site_url('accueil') ?>" class="btn btn-primary">Accueil</a>
+            <a href="<?php echo site_url('accueil') ?>" class="btn btn-primary">Accueil</a>&nbsp;&nbsp;
+            <a href="<?php echo site_url('voirprofil')?>" class="btn btn-primary">Profil</a>&nbsp;&nbsp;
           <?php else : ?>
             <a href="<?php echo site_url('connexion') ?>" class="btn btn-primary">Se connecter</a>&nbsp;&nbsp;
             <a href="<?php echo site_url('inscription') ?>" class="btn btn-primary">S'inscrire</a>&nbsp;&nbsp;

@@ -1,8 +1,7 @@
-<h2><?php echo $TitreDeLaPage ?></h2>
 <table class="table table-bordered">
 
     <body>
-        <h1>Affichage avec traitements des ruptures</h1>
+        <h2 class="text-center"><em> Compagnie Atlantik Tarifs en euros</em></h2>
     </body>
     <thead>
         <tr>

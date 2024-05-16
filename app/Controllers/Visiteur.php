@@ -5,8 +5,9 @@ namespace App\Controllers;
 use App\Models\ModeleLiaison;
 use App\Models\ModeleSecteur;
 use App\Models\ModeleClient;
-use App\Models\ModelePeriode;
 use App\Models\ModeleLesCategories;
+use App\Models\ModeleTraversee;
+use app\Models\ModeleReservation;
 
 helper(['assets', 'url', 'form']);
 class Visiteur extends BaseController
@@ -38,6 +39,7 @@ class Visiteur extends BaseController
         $condition = ['mel' => $Mel, 'motdepasse' => $MDP];
         $utilisateurRetourne = $modClient->where($condition)->first();
         if ($utilisateurRetourne != null) {
+            $session->set('noclient', $utilisateurRetourne->NOCLIENT);
             $session->set('mel', $utilisateurRetourne->MEL);
             $session->set('nom', $utilisateurRetourne->NOM);
             $session->set('prenom', $utilisateurRetourne->PRENOM);
@@ -64,9 +66,11 @@ class Visiteur extends BaseController
     }
     public function voirLesSecteurs($numSecteur = null)
     {
+        $modLiaison = new ModeleLiaison();
         $modSecteur = new ModeleSecteur();
-        if ($numSecteur === null) {
-            $data['lesSecteurs'] = $modSecteur->findAll();
+        if ($numSecteur === null && !$this->request->is('post')) {
+            $data['secteurs'] = $modSecteur->findAll();
+            $data['liaisons'] = $modLiaison->findAll();
             $data['TitreDeLaPage'] = 'Tous les secteurs';
             return view('Templates/Header')
                 . view('Visiteur/vue_LesSecteurs', $data)
@@ -76,13 +80,14 @@ class Visiteur extends BaseController
             if (empty($data['unSecteur'])) {
                 throw  \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
             }
+            $data['liaisons'] = $modLiaison->getPortDepartEtArrivee($numSecteur);
             $data['TitreDeLaPage'] = $data['unSecteur']->NOM;
             return view('Templates/Header')
                 . view('Visiteur/vue_UnSecteur', $data)
                 . view('Templates/Footer');
         }
     }
-    public function inscription($noClient = null)
+    public function inscription()
     {
         $data['TitreDeLaPage'] = 'Inscription';
         if (!$this->request->is('post')) {
@@ -130,8 +135,6 @@ class Visiteur extends BaseController
     public function liaison($noLiaison = null)
     {
         $modLiaison = new ModeleLiaison();
-        //$modPeriode = new ModelePeriode();
-        //$modLesCat = new ModeleLesCategories();
         if ($noLiaison === null) {
             $data['lesLiaisons'] = $modLiaison->getAllLiaisons();
             $data['TitreDeLaPage'] = 'Les liaisons par secteur';
@@ -142,10 +145,7 @@ class Visiteur extends BaseController
             $data['uneLiaison'] = $modLiaison->find($noLiaison);
             $data['depart'] = $modLiaison->getNomportDepart($noLiaison);
             $data['arrivee'] = $modLiaison->getNomportArrivee($noLiaison);
-            //$data['lesPeriodes'] = $modPeriode->getPeriode($noLiaison);
             $data['lesTarifs'] = $modLiaison->getTarifLiaison($noLiaison);
-            //$data['lesTypes'] = $modLiaison($noLiaison);
-            //$data['lesCategories'] = $modLesCat->findAll();
             if (empty($data['uneLiaison'])) {
                 throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
             }
@@ -154,5 +154,44 @@ class Visiteur extends BaseController
                 . view('Visiteur/vue_VoirUneLiaison', $data)
                 . view('Templates/Footer');
         }
+    }
+    public function voirHoraireTraversee($noliaison = null)
+    {
+        $modTraversee = new ModeleTraversee();
+        $modLesCat = new ModeleLesCategories();
+        $modLiaison = new ModeleLiaison();
+        $data['traversees'] = [];
+        if ($noliaison === null && $this->request->is('post')) {
+            $data['traversees'] = $modTraversee->findAll();
+            $data['liaison'] = $this->request->getPost('lstLiaisons');
+            $data['liaisons'] = $modLiaison->getPortDepartEtArriveeParNoLiaison($data['liaison']);
+            $data['categories'] = $modLesCat->findAll();
+            $data['bateaux'] = $modTraversee->getLesTraverseesBateaux($data['liaison'], $this->request->getPost('datepicker'));
+            $data['date'] = $this->request->getPost('datepicker');
+            $data['capacites'] = [];
+            foreach ($data['bateaux'] as $bateau) {
+                foreach ($data['categories'] as $categorie) {
+                    $capaciteMax = $modTraversee->getCapaciteMaximale($bateau->traversee, $categorie->LETTRECATEGORIE)->capacitemax ?? 0;
+                    $quantiteReservee = $modTraversee->getQuantiteEnregistree($bateau->traversee, $categorie->LETTRECATEGORIE)->quantitereservee ?? 0;
+                    $data['capacites'][$categorie->LETTRECATEGORIE] = $capaciteMax - $quantiteReservee;
+                    $ligne[$categorie->LETTRECATEGORIE] = $data['capacites'][$categorie->LETTRECATEGORIE];
+                }
+            }
+            $data['TitreDeLaPage'] = 'Les traversées';
+            return view('Templates/Header')
+                . view('Visiteur/vue_LesTraversees', $data)
+                . view('Templates/Footer');
+        } else {
+            if (empty($data['traversees'])) {
+                throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+            }
+            return view('Templates/Header')
+                . view('Visiteur/vue_VoirTraversees', $data)
+                . view('Templates/Footer');
+        }
+    }
+    public function reserverUneTraversee($notraversee)
+    {
+       
     }
 }

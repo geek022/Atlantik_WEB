@@ -47,4 +47,20 @@ class ModeleLiaison extends Model
             ->select('categorie.lettrecategorie,categorie.libelle as libellecategorie,type.lettrecategorie as lettretype,tarifer.notype,type.libelle as libelletype,periode.datedebut,periode.datefin,tarifer.tarif')
             ->get()->getResult();
     }
+    public function getPortDepartEtArrivee($nosecteur)
+    {
+        return $this->join('port as pd', 'pd.noport = liaison.noport_depart', 'inner')
+            ->join('port as pa', 'pa.noport = liaison.noport_arrivee', 'inner')
+            ->select('pd.nom as portdepart,pa.nom as portarrivee,noliaison')
+            ->where('nosecteur', $nosecteur)
+            ->get()->getResult();
+    }
+    public function getPortDepartEtArriveeParNoLiaison($noLiaison)
+    {
+        return $this->join('port as pd', 'pd.noport = liaison.noport_depart', 'inner')
+            ->join('port as pa', 'pa.noport = liaison.noport_arrivee', 'inner')
+            ->select('pd.nom as depart, pa.nom as arrivee,noliaison')
+            ->where('noliaison', $noLiaison)
+            ->get()->getResult();
+    }
 }
