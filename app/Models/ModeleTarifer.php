@@ -27,4 +27,16 @@ class ModeleTarifer extends Model
             ->select('tarifer.tarif')
             ->get()->getResult();
     }
+
+    public function getTarifParTraversee($notraversee,$noLiaison)
+    {
+        return $this->join('type','type.notype = tarifer.notype','inner')
+        ->join('liaison','liaison.noliaison = tarifer.noliaison','inner')
+        ->join('traversee','traversee.noliaison = liaison.noliaison')
+        ->where('notraversee',$notraversee)
+        ->where('noliaison',$noLiaison)
+        ->distinct('tarifer.tarif, type.lettrecategorie, type.libelle')
+        ->get()->getResult();
+    }
+    
 }

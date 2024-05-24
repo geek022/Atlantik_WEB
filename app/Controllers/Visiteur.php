@@ -7,7 +7,7 @@ use App\Models\ModeleSecteur;
 use App\Models\ModeleClient;
 use App\Models\ModeleLesCategories;
 use App\Models\ModeleTraversee;
-use app\Models\ModeleReservation;
+
 
 helper(['assets', 'url', 'form']);
 class Visiteur extends BaseController
@@ -60,8 +60,12 @@ class Visiteur extends BaseController
     }
     public function accueil()
     {
+        $modTraversee = new ModeleTraversee();
+        $data['traversees'] = $modTraversee->find(3);
+        $data['TitreDeLaPage'] = 'Accueil';
+
         return view('Templates/Header')
-            . view('Visiteur/vue_Accueil')
+            . view('Visiteur/vue_Accueil',$data)
             . view('Templates/Footer');
     }
     public function voirLesSecteurs($numSecteur = null)
@@ -160,38 +164,38 @@ class Visiteur extends BaseController
         $modTraversee = new ModeleTraversee();
         $modLesCat = new ModeleLesCategories();
         $modLiaison = new ModeleLiaison();
+
         $data['traversees'] = [];
         if ($noliaison === null && $this->request->is('post')) {
-            $data['traversees'] = $modTraversee->findAll();
             $data['liaison'] = $this->request->getPost('lstLiaisons');
+            $data['date'] = $this->request->getPost('datepicker');
+
             $data['liaisons'] = $modLiaison->getPortDepartEtArriveeParNoLiaison($data['liaison']);
             $data['categories'] = $modLesCat->findAll();
-            $data['bateaux'] = $modTraversee->getLesTraverseesBateaux($data['liaison'], $this->request->getPost('datepicker'));
-            $data['date'] = $this->request->getPost('datepicker');
+            $data['bateaux'] = $modTraversee->getLesTraverseesBateaux($data['liaison'], $data['date']);
             $data['capacites'] = [];
+
             foreach ($data['bateaux'] as $bateau) {
+                $capacitesParCategorie = [];
                 foreach ($data['categories'] as $categorie) {
-                    $capaciteMax = $modTraversee->getCapaciteMaximale($bateau->traversee, $categorie->LETTRECATEGORIE)->capacitemax ?? 0;
-                    $quantiteReservee = $modTraversee->getQuantiteEnregistree($bateau->traversee, $categorie->LETTRECATEGORIE)->quantitereservee ?? 0;
-                    $data['capacites'][$categorie->LETTRECATEGORIE] = $capaciteMax - $quantiteReservee;
-                    $ligne[$categorie->LETTRECATEGORIE] = $data['capacites'][$categorie->LETTRECATEGORIE];
+                    $capaciteMax = $modTraversee->getCapaciteMaximale($bateau->traversee, $categorie->LETTRECATEGORIE)[0]->capacitemax;
+                    //$quantiteReservee = $modTraversee->getQuantiteEnregistree($bateau->traversee,$categorie->LETTRECATEGORIE)[0]->quantitereservee;
+                    $capacitesParCategorie[$categorie->LETTRECATEGORIE] = $capaciteMax;
                 }
+                $data['capacites'][$bateau->traversee] = $capacitesParCategorie;
             }
+
             $data['TitreDeLaPage'] = 'Les traversées';
-            return view('Templates/Header')
+            return view('Templates/Header', $data)
                 . view('Visiteur/vue_LesTraversees', $data)
                 . view('Templates/Footer');
         } else {
             if (empty($data['traversees'])) {
                 throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
             }
-            return view('Templates/Header')
+            return view('Templates/Header', $data)
                 . view('Visiteur/vue_VoirTraversees', $data)
                 . view('Templates/Footer');
         }
-    }
-    public function reserverUneTraversee($notraversee)
-    {
-       
     }
 }

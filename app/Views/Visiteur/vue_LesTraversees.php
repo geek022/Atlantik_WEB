@@ -61,27 +61,22 @@
                     <th>N°</th>
                     <th>Heure</th>
                     <th>Bateau</th>
-                    <?php
-                    foreach ($categories as $categorie) :
-                        echo '<th>' . $categorie->LETTRECATEGORIE . ' ' . $categorie->LIBELLE . '</th>';
-                    endforeach; ?>
+                    <?php foreach ($categories as $categorie) : ?>
+                        <th><?php echo $categorie->LETTRECATEGORIE . ' ' . $categorie->LIBELLE; ?></th>
+                    <?php endforeach; ?>
                 </tr>
             </thead>
             <tbody>
-                <?php
-                foreach ($bateaux as $bateau) :
-                    echo '<tr>';
-                    echo '<td>' . $bateau->traversee . '</td>';
-                    echo '<td>' . date('H:i', strtotime($bateau->arrivee)) . '</td>';
-                    echo '<td>' . $bateau->nom . '</td>';
-                    foreach ($categories as $categorie) :
-                        $capaciteMax = $capacites[$bateau->traversee][$categorie->LETTRECATEGORIE] ?? 0;
-                        echo '<td>' . $capaciteMax . '</td>';
-
-                    endforeach;
-                    echo '</tr>';
-                endforeach;
-                ?>
+                <?php foreach ($bateaux as $bateau) : 
+                    echo'<tr>';
+                        echo'<td>' .anchor('voirreservation/' . $bateau->traversee, $bateau->traversee).'</td>';
+                        echo'<td>' .date('H:i', strtotime($bateau->arrivee)).'</td>';
+                        echo'<td>' .$bateau->nom.'</td>';
+                        foreach ($categories as $categorie) :
+                            echo'<td>' .$capacites[$bateau->traversee][$categorie->LETTRECATEGORIE].'</td>';
+                        endforeach; 
+                    echo'</tr>';
+                endforeach; ?>
             </tbody>
         </table>
     </div>

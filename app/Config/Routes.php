@@ -24,12 +24,15 @@ $routes->get('voirlestarifs', 'Visiteur::liaison');
 $routes->get('voiruneliaison/(:alphanum)', 'Visiteur::liaison/$1');
 $routes->get('voiruneliaison', 'Visiteur::liaison');
 $routes->match(['get','post'],'voirunetraversee/(:alplanum)','Visiteur::voirHoraireTraversee/$1');
-$routes->get('voirunetraversee','Visiteur::voirHoraireTraversee');
+//$routes->get('voirunetraversee','Visiteur::voirHoraireTraversee');
 $routes->post('voirunetraversee','Visiteur::voirHoraireTraversee');
+
 //Client
 $routes->get('voirprofil', 'Client::client');
 $routes->match(['get','post'],'modifiercompte', 'Client::modifierCompte',["filter"=>"filterclient"]);
 $routes->post('modifier','Client::modifierCompte');
+$routes->get('voirreservation/(:alphanum)','Client::reserverUneTraversee/$1');
+$routes->get('voirreservation','Client::reserverUneTraversee');
 
 
 
