@@ -63,4 +63,17 @@ class ModeleLiaison extends Model
             ->where('noliaison', $noLiaison)
             ->get()->getResult();
     }
+    public function getTarifsByLiaison($noLiaison)
+    {
+        return $this->join('port portdepart', 'portdepart.noport=liaison.noport_depart', 'inner')
+            ->join('port portarrivee', 'portarrivee.noport = liaison.noport_arrivee', 'inner')
+            ->join('tarifer', 'tarifer.noliaison = liaison.noliaison', 'inner')
+            ->join('periode', 'periode.noperiode = tarifer.noperiode', 'inner')
+            ->join('type', 'type.notype = tarifer.notype', 'inner')
+            ->join('categorie', 'categorie.lettrecategorie = type.lettrecategorie', 'inner')
+            ->where('liaison.noliaison', $noLiaison, 'periode.datefin >=', date('Y-m-d'))
+            ->groupBy('type.libelle')
+            ->select('categorie.lettrecategorie,categorie.libelle as libellecategorie,type.lettrecategorie as lettretype,tarifer.notype,type.libelle as libelletype,periode.datedebut,periode.datefin,tarifer.tarif')
+            ->get()->getResult();
+    }
 }

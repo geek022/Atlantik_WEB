@@ -23,16 +23,19 @@
       <div class="collapse navbar-collapse" id="mynavbar">
         <ul class="navbar-nav me-auto">
           <li class="nav-item">
+            <a class="nav-link" href="<?php echo site_url('accueil') ?>">Accueil </a>
+          </li>
+          <li class="nav-item">
             <a class="nav-link" href="<?php echo site_url('voirlestarifs') ?>">Afficher les liaisons par secteur</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="<?php echo site_url('voirsecteurs') ?>">Afficher les secteurs</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="<?php echo site_url('voirunetraversee') ?>">Les horaires de traversées </a>
+            <a class="nav-link" href="<?php echo site_url('voirunetraversee') ?>"> </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="<?php echo site_url('voirreservation') ?>">Réservations </a>
+            <a class="nav-link" href="<?php echo site_url('historique') ?>">Historiques</a>
           </li>
         </ul>
         <form class="d-flex">
@@ -41,11 +44,11 @@
           if (!is_null($session->get('mel'))) : ?>
             <?php echo 'Bonjour ' . $session->get('prenom') . ' ' . $session->get('nom') . '&nbsp;&nbsp;'; ?>
             <a href="<?php echo site_url('deconnexion') ?>" class="btn btn-primary">Se déconnecter</a>&nbsp;&nbsp;
-            <a href="<?php echo site_url('voirprofil')?>" class="btn btn-primary">Profil</a>&nbsp;&nbsp;
+            <a href="<?php echo site_url('voirprofil') ?>" class="btn btn-primary">Profil</a>&nbsp;&nbsp;
           <?php else : ?>
             <a href="<?php echo site_url('connexion') ?>" class="btn btn-primary">Se connecter</a>&nbsp;&nbsp;
             <a href="<?php echo site_url('inscription') ?>" class="btn btn-primary">S'inscrire</a>&nbsp;&nbsp;
-            <a href="<?php echo site_url('accueil') ?>" class="btn btn-primary">Accueil</a>&nbsp;&nbsp;
+            <!--<a href="<?php echo site_url('accueil') ?>" class="btn btn-primary">Accueil</a>&nbsp;&nbsp;-->
           <?php endif; ?>
         </form>
       </div>
@@ -61,8 +64,8 @@
     </form>
   </div>
   <!--<?php
-  helper(['assets', 'img']);
-  ?>
+      helper(['assets', 'img']);
+      ?>
   <div class="d-flex justify-content-center">
     <img src="<?php echo img_url('maxresdefault.jpg'); ?>" alt="atlantik" width="70%" height="auto">
   </div>-->

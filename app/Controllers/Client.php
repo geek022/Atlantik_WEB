@@ -1,10 +1,13 @@
 <?php
 
 namespace App\Controllers;
+
 use App\Models\ModeleTraversee;
 use App\Models\ModeleLiaison;
 use App\Models\ModeleClient;
 use App\Models\ModeleReservation;
+use App\Models\ModeleEnregistrer;
+use App\Models\ModeleTarifer;
 
 helper(['assets', 'url', 'form']);
 class Client extends BaseController
@@ -79,19 +82,18 @@ class Client extends BaseController
         if ($notraversee === null) {
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
-        $traversee = $modTraversee->find($notraversee);
+        $traversee = $modTraversee->where('notraversee', $notraversee)->find();
         if (!$traversee) {
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
         }
-        $noliaison = $traversee->NOLIAISON;
+        $noliaison = $traversee[0]->NOLIAISON;
         $liaison = $modLiaison->getPortDepartEtArrivee($noliaison);
         $clientID = session()->get('noclient');
-        if($clientID === null)
-        {
+        if ($clientID === null) {
             return redirect()->to('connexion');
         }
         $utilisateur = $modClient->find($clientID);
-        $tarifs = $modLiaison->getTarifLiaison($noliaison);
+        $tarifs = $modLiaison->getTarifsByLiaison($noliaison);
         $data['traversee'] = $traversee;
         $data['liaisons'] = $liaison;
         $data['tarifs'] = $tarifs;
@@ -101,6 +103,45 @@ class Client extends BaseController
         return view('Templates/Header', $data)
             . view('Client/vue_VoirReservation', $data)
             . view('Templates/Footer');
+    }
+
+    public function reserver($notraversee = null)
+    {
+        if ($notraversee === null  || !$this->request->is('post')) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+        $modReservation = new ModeleReservation();
+        $modeEnregistrer = new ModeleEnregistrer();
+
+        $quantites = $this->request->getPost('quantite');
+        $clientID = session()->get('noclient');
+        $dateheure = date('Y/m/d à\ H:i');
+        $lettrecategorie = $this->request->getPost('lettrecategorie');
+
+        $data =
+            [
+                'notraversee' => $notraversee,
+                'noclient' => $clientID,
+                'dateheure' => $dateheure,
+                'montanttotal' => 0,
+                'paye' => 0,
+                'modereglement' => null
+            ];
+        $data['reservation'] = $modReservation->insert($data);
+        $noreservation = $modReservation->getInsertID();
+        foreach ($quantites as $notype => $quantite) {
+
+            $data['enregistres'] =
+                [
+                    'noreservation' => $noreservation,
+                    'lettrecategorie' => $lettrecategorie,
+                    'notype' => $notype,
+                    'quantitereservee' => $quantite,
+                    'quantiteembarquee' => 0,
+                ];
+            $modeEnregistrer->insert($data['enregistres']);
+        }
+        return redirect()->to('bilan_reservation/' . $noreservation);
     }
     public function confirmeReservation()
     {
@@ -116,17 +157,42 @@ class Client extends BaseController
         $modReservation->save($data);
         return redirect()->to('accueil');
     }
-    public function afficherHistorique() 
+    public function afficherHistorique()
     {
         $session = session();
-        $data = [];        
+        $data = [];
         $data['TitreDeLaPage'] = 'Toutes les réservations';
-        //$pager = \Config\Services::pager();
-        $modClient = new ModeleClient();
-        $data['reservations'] = $modClient->getReservations($session->get('noclient'));
-        $data['pager'] = $modClient->pager;
+
+        $modReservation = new ModeleReservation();
+        $data['reservations'] = $modReservation->getReservations($session->get('noclient'))->paginate(5);
+
+        $data['pager'] = $modReservation->pager;
+
         return view('Templates/Header', $data)
             . view('Client/vue_Historique', $data)
+            . view('Templates/Footer');
+    }
+
+    public function bilanReservation($noreservation)
+    {
+        $modReservation = new ModeleReservation();
+        $modEnregistrer = new ModeleEnregistrer();
+
+        $reservation = $modReservation->find($noreservation);
+        if (!$reservation) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        $enregistrements = $modEnregistrer->where('noreservation', $noreservation)->findAll();
+
+        $data = [
+            'reservation' => $reservation,
+            'enregistrements' => $enregistrements,
+            'TitreDeLaPage' => 'Bilan de la Réservation'
+        ];
+
+        return view('Templates/Header', $data)
+            . view('Client/vue_BilanReservation', $data)
             . view('Templates/Footer');
     }
 }

@@ -1,6 +1,4 @@
-<?php
-//echo '<h3>Liaison ' . $liaison->NOLIAISON . ' : ' . $depart[0]->nom . ' - ' . $arrivee[0]->nom . '</h3>';
-?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -15,14 +13,15 @@
     foreach ($liaisons as $liaison) :
         echo '<p>Liaison : ' . $liaison->portdepart . '-' . $liaison->portarrivee . '</p>';
     endforeach;
-    echo '<p>Traversée n°' . $traversee->NOTRAVERSEE . ' le ' . date('Y/m/d', strtotime($traversee->DATEHEUREARRIVEE)) . '  à ' . date('H:i', strtotime($traversee->DATEHEUREARRIVEE)) . '</p>';
+    echo '<p>Traversée n°' . $traversee[0]->NOTRAVERSEE . ' le ' . date('Y/m/d \à H:i' , strtotime($traversee[0]->DATEHEUREARRIVEE)). '</p>';
     echo '<p>Saisir les informations relatives à la réservation</p>';
     echo '<p>Nom : '  . $utilisateur->NOM . '</p>';
     echo '<p>Adresse : ' . $utilisateur->ADRESSE . '</p>';
     echo '<p>Code Postal : '  . $utilisateur->CODEPOSTAL . ' Ville : ' . $utilisateur->VILLE . '</p>';
     ?>
-    <form action="" method="">
-        <table border="1">
+    <?php echo form_open('reserver/'.$traversee[0]->NOTRAVERSEE)?>
+    <?php echo csrf_field();?>
+        <table border="1" style="width:50%">
             <tr>
                 <th></th>
                 <th>Tarif en €</th>
@@ -36,7 +35,15 @@
                 echo '</tr>';
             endforeach; ?>
         </table>
-        <button type="submit">Réserver</button>
+        <?php
+        foreach($tarifs as $tarif):
+            echo'<input type="hidden" name="lettrecategorie['.$tarif->lettrecategorie.']>';
+        endforeach;
+        ?>
+        <input type="hidden" name="notraversee" value="<?php $traversee[0]->NOTRAVERSEE ?>">
+        <button type="submit" name="submit">Valider-Acheter</button>
+        <?php echo form_close();?>
+        
     </form>
 </body>
 

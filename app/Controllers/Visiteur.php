@@ -131,7 +131,6 @@ class Visiteur extends BaseController
         );
         $modClient = new ModeleClient();
         $donnees['clientAjoute'] = $modClient->insert($donneesAInserer, false);
-        $modClient->getInsertID();
         return view('Templates/Header')
             . view('Visiteur/vue_InscriptionReussie', $donnees)
             . view('Templates/Footer');

@@ -38,5 +38,7 @@ class ModeleTarifer extends Model
         ->distinct('tarifer.tarif, type.lettrecategorie, type.libelle')
         ->get()->getResult();
     }
+   
+    
     
 }
